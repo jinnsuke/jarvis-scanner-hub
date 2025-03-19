@@ -20,8 +20,8 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Gallery />} />
-            <Route path="/upload" element={<UploadPage />} />
+            <Route path="/" element={<UploadPage />} />
+            <Route path="/gallery" element={<Gallery />} />
             <Route path="/document/:id" element={<DocumentDetail />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

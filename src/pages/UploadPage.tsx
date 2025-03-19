@@ -43,7 +43,7 @@ const UploadPage = () => {
       });
       
       // Navigate to gallery
-      navigate("/");
+      navigate("/gallery");
     } else {
       toast({
         title: "Upload failed",
@@ -57,9 +57,11 @@ const UploadPage = () => {
     <div className="min-h-screen bg-bsc-lightgray">
       <Navbar showSearch={false} />
       
-      <main className="container p-4 mx-auto">
-        <div className="max-w-md p-6 mx-auto mt-8 bg-white rounded-lg shadow-md">
-          <h2 className="mb-6 text-2xl font-bold text-center text-bsc-blue">Upload Document</h2>
+      <main className="container px-4 py-6 mx-auto sm:py-10">
+        <div className="max-w-md p-6 mx-auto mt-4 bg-white rounded-lg shadow-md">
+          <h2 className="mb-6 text-xl font-bold text-center text-bsc-blue sm:text-2xl">
+            Upload Document
+          </h2>
           
           <div className="mb-6">
             <label className="block mb-2 text-sm font-medium">Document Name</label>
@@ -91,7 +93,7 @@ const UploadPage = () => {
                 </button>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded cursor-pointer border-bsc-blue bg-gray-50 hover:bg-gray-100">
+              <label className="flex flex-col items-center justify-center w-full h-56 border-2 border-dashed rounded cursor-pointer border-bsc-blue bg-gray-50 hover:bg-gray-100">
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                   <ImagePlus className="w-10 h-10 mb-3 text-bsc-blue" />
                   <p className="mb-2 text-sm text-gray-500"><span className="font-semibold">Click to upload</span> or drag and drop</p>
