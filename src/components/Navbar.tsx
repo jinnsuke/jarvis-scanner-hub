@@ -51,7 +51,7 @@ const Navbar = ({ onSearch, showSearch = true }: NavbarProps) => {
           {location.pathname === '/' && (
             <Button 
               onClick={() => navigate("/gallery")}
-              className="px-3 py-1 text-sm bg-bsc-blue hover:bg-blue-700 sm:px-4 sm:py-2 sm:text-base"
+              className="px-3 py-1 text-sm text-white bg-bsc-blue hover:bg-blue-700 sm:px-4 sm:py-2 sm:text-base"
               variant="outline"
             >
               View Gallery
