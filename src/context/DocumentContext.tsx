@@ -6,7 +6,8 @@ import {
   addDocument, 
   renameDocument as renameDocumentService,
   searchDocuments as searchDocumentsService,
-  groupDocumentsByMonth
+  groupDocumentsByMonth,
+  deleteDocument as deleteDocumentService
 } from "@/services/documentService";
 
 interface DocumentContextType {
@@ -16,6 +17,7 @@ interface DocumentContextType {
   addNewDocument: (name: string, imageSrc: string) => Document;
   renameDocument: (id: string, newName: string) => void;
   searchDocuments: (query: string) => void;
+  deleteDocument: (id: string) => void;
 }
 
 const DocumentContext = createContext<DocumentContextType | undefined>(undefined);
@@ -50,6 +52,12 @@ export const DocumentProvider = ({ children }: { children: ReactNode }) => {
     }
   };
   
+  const deleteDocument = (id: string) => {
+    const remainingDocs = deleteDocumentService(id);
+    setDocuments(remainingDocs);
+    setFilteredDocuments(remainingDocs);
+  };
+  
   return (
     <DocumentContext.Provider
       value={{
@@ -58,7 +66,8 @@ export const DocumentProvider = ({ children }: { children: ReactNode }) => {
         filteredDocuments,
         addNewDocument,
         renameDocument,
-        searchDocuments
+        searchDocuments,
+        deleteDocument
       }}
     >
       {children}

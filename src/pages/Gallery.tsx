@@ -5,10 +5,12 @@ import MonthGroup from "@/components/MonthGroup";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 const Gallery = () => {
-  const { groupedDocuments, renameDocument, searchDocuments } = useDocuments();
+  const { groupedDocuments, renameDocument, searchDocuments, deleteDocument } = useDocuments();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     // Redirect to upload page if no documents exist
@@ -19,6 +21,14 @@ const Gallery = () => {
 
   const handleSearch = (query: string) => {
     searchDocuments(query);
+  };
+
+  const handleDelete = (id: string) => {
+    deleteDocument(id);
+    toast({
+      title: "Document deleted",
+      description: "The document has been successfully deleted.",
+    });
   };
 
   return (
@@ -32,6 +42,7 @@ const Gallery = () => {
               key={group.month} 
               group={group} 
               onRename={renameDocument}
+              onDelete={handleDelete}
             />
           ))
         ) : (

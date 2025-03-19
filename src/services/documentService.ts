@@ -5,12 +5,12 @@ import { v4 as uuidv4 } from "uuid";
 // Placeholder data
 const placeholderImage = "https://placehold.co/600x400/e6f2ff/0055B8?text=BSC+Document";
 
-// Only one document as requested
+// Sample document with date set to January 2025
 const sampleDocuments: Document[] = [
   {
     id: uuidv4(),
     name: "Boston Scientific MUSTANG 7.0mm x 60mm 75cm",
-    uploadDate: new Date(2023, 7, 15),
+    uploadDate: new Date(2025, 0, 15), // January 2025 (month is 0-indexed)
     imageSrc: placeholderImage,
     extractedText: "Boston Scientific MUSTANG 7.0mm x 60mm 75cm GTIN 12345 REF H12345 LOT 12345"
   }
@@ -52,7 +52,7 @@ export const addDocument = (name: string, imageSrc: string): Document => {
   const newDocument: Document = {
     id: uuidv4(),
     name,
-    uploadDate: new Date(),
+    uploadDate: new Date(2025, 0, 15), // January 2025
     imageSrc,
     extractedText: "Sample extracted text from the document. This would contain the actual text extracted from the uploaded image using OCR technology."
   };
@@ -70,6 +70,17 @@ export const renameDocument = (id: string, newName: string): Document | undefine
   }
   
   return document;
+};
+
+// Delete a document
+export const deleteDocument = (id: string): Document[] => {
+  const index = sampleDocuments.findIndex(doc => doc.id === id);
+  
+  if (index !== -1) {
+    sampleDocuments.splice(index, 1);
+  }
+  
+  return sampleDocuments;
 };
 
 // Search documents by name

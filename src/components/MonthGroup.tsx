@@ -5,9 +5,10 @@ import DocumentCard from "./DocumentCard";
 interface MonthGroupProps {
   group: MonthGroupType;
   onRename: (id: string, newName: string) => void;
+  onDelete: (id: string) => void;
 }
 
-const MonthGroup = ({ group, onRename }: MonthGroupProps) => {
+const MonthGroup = ({ group, onRename, onDelete }: MonthGroupProps) => {
   return (
     <div className="mb-6 sm:mb-8">
       <h2 className="mb-3 text-base font-semibold text-bsc-darktext sm:mb-4 sm:text-lg">{group.month}</h2>
@@ -17,6 +18,7 @@ const MonthGroup = ({ group, onRename }: MonthGroupProps) => {
             key={document.id} 
             document={document} 
             onRename={onRename} 
+            onDelete={onDelete}
           />
         ))}
       </div>
