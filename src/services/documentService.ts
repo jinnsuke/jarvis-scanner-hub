@@ -9,7 +9,7 @@ const placeholderImage = "https://placehold.co/600x400/e6f2ff/0055B8?text=BSC+Do
 const sampleDocuments: Document[] = [
   {
     id: uuidv4(),
-    name: "Boston Scientific MUSTANG 7.0mm x 60mm 75cm",
+    name: "1/1/25 KTPH Endo",
     uploadDate: new Date(2025, 0, 15), // January 2025 (month is 0-indexed)
     imageSrc: placeholderImage,
     extractedText: "Boston Scientific MUSTANG 7.0mm x 60mm 75cm GTIN 12345 REF H12345 LOT 12345"
