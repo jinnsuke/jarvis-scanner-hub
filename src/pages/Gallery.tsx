@@ -4,6 +4,7 @@ import { useDocuments } from "@/context/DocumentContext";
 import MonthGroup from "@/components/MonthGroup";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const Gallery = () => {
   const { groupedDocuments, renameDocument, searchDocuments } = useDocuments();
