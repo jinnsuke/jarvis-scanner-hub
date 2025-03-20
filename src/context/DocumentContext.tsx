@@ -30,8 +30,9 @@ export const DocumentProvider = ({ children }: { children: ReactNode }) => {
   
   const addNewDocument = (name: string, imageSrc: string) => {
     const newDoc = addDocument(name, imageSrc);
-    setDocuments([...documents, newDoc]);
-    setFilteredDocuments([...documents, newDoc]);
+    const updatedDocs = [...documents, newDoc];
+    setDocuments(updatedDocs);
+    setFilteredDocuments(updatedDocs);
     return newDoc;
   };
   
