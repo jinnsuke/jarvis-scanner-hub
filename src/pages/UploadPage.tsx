@@ -60,7 +60,7 @@ const UploadPage = () => {
       <main className="container px-4 py-6 mx-auto sm:py-10">
         <div className="max-w-md p-6 mx-auto mt-4 bg-white rounded-lg shadow-md">
           <h2 className="mb-6 text-xl font-bold text-center text-bsc-blue sm:text-2xl">
-            Upload Document
+            Upload Post-Case Charge Form
           </h2>
           
           <div className="mb-6">
@@ -115,7 +115,7 @@ const UploadPage = () => {
             className="w-full bg-bsc-blue hover:bg-blue-700"
           >
             <Upload className="w-4 h-4 mr-2" />
-            Upload Document
+            Upload Post-Case Charge Form
           </Button>
         </div>
       </main>

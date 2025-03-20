@@ -39,7 +39,7 @@ export const groupDocumentsByMonth = (documents: Document[]): MonthGroup[] => {
 
 // Get all documents
 export const getAllDocuments = (): Document[] => {
-  return sampleDocuments;
+  return [...sampleDocuments]; // Return a copy to prevent mutation
 };
 
 // Get document by ID
@@ -80,7 +80,7 @@ export const deleteDocument = (id: string): Document[] => {
     sampleDocuments.splice(index, 1);
   }
   
-  return sampleDocuments;
+  return [...sampleDocuments]; // Return a copy to prevent mutation
 };
 
 // Search documents by name
