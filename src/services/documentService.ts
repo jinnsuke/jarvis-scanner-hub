@@ -52,7 +52,7 @@ export const addDocument = (name: string, imageSrc: string): Document => {
   const newDocument: Document = {
     id: uuidv4(),
     name,
-    uploadDate: new Date(2025, 0, 15), // January 2025
+    uploadDate: new Date(), // Use current date instead of hardcoded date
     imageSrc,
     extractedText: "Sample extracted text from the document. This would contain the actual text extracted from the uploaded image using OCR technology."
   };

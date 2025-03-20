@@ -1,11 +1,13 @@
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
-import { ImagePlus, Upload } from "lucide-react";
+import { ImagePlus, Upload, Crop, Save, X } from "lucide-react";
 import { useDocuments } from "@/context/DocumentContext";
 import { useToast } from "@/components/ui/use-toast";
+import ReactCrop, { type Crop as CropType, centerCrop, makeAspectCrop } from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
 
 const UploadPage = () => {
   const navigate = useNavigate();
@@ -15,6 +17,9 @@ const UploadPage = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [documentName, setDocumentName] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [crop, setCrop] = useState<CropType>();
+  const imgRef = useRef<HTMLImageElement>(null);
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -28,7 +33,109 @@ const UploadPage = () => {
       // Create a preview URL
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
+      
+      // Initialize the cropper
+      setShowCropper(true);
+      setCrop(undefined); // Reset crop when a new image is selected
     }
+  };
+  
+  function centerAspectCrop(
+    mediaWidth: number,
+    mediaHeight: number,
+    aspect: number,
+  ) {
+    return centerCrop(
+      makeAspectCrop(
+        {
+          unit: '%',
+          width: 90,
+        },
+        aspect,
+        mediaWidth,
+        mediaHeight,
+      ),
+      mediaWidth,
+      mediaHeight,
+    );
+  }
+  
+  const onImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const { width, height } = e.currentTarget;
+    setCrop(centerAspectCrop(width, height, 16 / 9));
+  };
+  
+  const getCroppedImg = (image: HTMLImageElement, crop: CropType): Promise<string> => {
+    const canvas = document.createElement('canvas');
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+    canvas.width = crop.width;
+    canvas.height = crop.height;
+    const ctx = canvas.getContext('2d');
+    
+    if (!ctx) {
+      return Promise.reject(new Error('No 2d context'));
+    }
+    
+    ctx.drawImage(
+      image,
+      crop.x * scaleX,
+      crop.y * scaleY,
+      crop.width * scaleX,
+      crop.height * scaleY,
+      0,
+      0,
+      crop.width,
+      crop.height,
+    );
+    
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          return;
+        }
+        const croppedUrl = URL.createObjectURL(blob);
+        resolve(croppedUrl);
+      }, 'image/jpeg');
+    });
+  };
+  
+  const applyCrop = async () => {
+    if (!imgRef.current || !crop) return;
+    
+    try {
+      const croppedUrl = await getCroppedImg(imgRef.current, crop);
+      setPreviewUrl(croppedUrl);
+      setShowCropper(false);
+      
+      // Convert the cropped image URL to a Blob
+      const response = await fetch(croppedUrl);
+      const blob = await response.blob();
+      
+      // Create a new File object from the Blob
+      const croppedFile = new File([blob], selectedFile?.name || "cropped-image.jpg", {
+        type: 'image/jpeg',
+        lastModified: new Date().getTime(),
+      });
+      
+      setSelectedFile(croppedFile);
+      
+      toast({
+        title: "Image cropped",
+        description: "The image has been cropped successfully.",
+      });
+    } catch (error) {
+      console.error("Error cropping image:", error);
+      toast({
+        title: "Crop failed",
+        description: "There was an error cropping the image.",
+        variant: "destructive",
+      });
+    }
+  };
+  
+  const cancelCrop = () => {
+    setShowCropper(false);
   };
   
   const handleUpload = () => {
@@ -75,22 +182,69 @@ const UploadPage = () => {
           </div>
           
           <div className="mb-6">
-            {previewUrl ? (
+            {showCropper && previewUrl ? (
+              <div className="flex flex-col space-y-4">
+                <div className="p-2 border rounded bg-gray-50">
+                  <ReactCrop
+                    crop={crop}
+                    onChange={c => setCrop(c)}
+                    aspect={undefined}
+                    className="max-h-[350px] mx-auto"
+                  >
+                    <img 
+                      src={previewUrl} 
+                      alt="Preview for cropping" 
+                      ref={imgRef}
+                      onLoad={onImageLoad}
+                      className="max-w-full max-h-[350px] object-contain"
+                    />
+                  </ReactCrop>
+                </div>
+                <div className="flex justify-between">
+                  <Button
+                    onClick={cancelCrop}
+                    variant="outline"
+                    className="flex-1 mr-2"
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={applyCrop}
+                    className="flex-1 ml-2 bg-bsc-blue hover:bg-blue-700"
+                    disabled={!crop?.width || !crop?.height}
+                  >
+                    <Crop className="w-4 h-4 mr-2" />
+                    Apply Crop
+                  </Button>
+                </div>
+              </div>
+            ) : previewUrl ? (
               <div className="relative">
                 <img 
                   src={previewUrl} 
                   alt="Preview" 
-                  className="object-contain w-full h-48 border rounded"
+                  className="object-contain w-full max-h-64 border rounded"
                 />
-                <button
-                  onClick={() => {
-                    setSelectedFile(null);
-                    setPreviewUrl(null);
-                  }}
-                  className="absolute p-1 bg-white rounded-full shadow-md top-2 right-2"
-                >
-                  <span className="text-red-500">✕</span>
-                </button>
+                <div className="absolute bottom-2 right-2 flex space-x-2">
+                  <button
+                    onClick={() => setShowCropper(true)}
+                    className="p-2 bg-white rounded shadow-md text-bsc-blue hover:bg-gray-100"
+                    title="Crop image"
+                  >
+                    <Crop className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedFile(null);
+                      setPreviewUrl(null);
+                    }}
+                    className="p-2 bg-white rounded shadow-md text-red-500 hover:bg-gray-100"
+                    title="Remove image"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             ) : (
               <label className="flex flex-col items-center justify-center w-full h-56 border-2 border-dashed rounded cursor-pointer border-bsc-blue bg-gray-50 hover:bg-gray-100">
@@ -111,7 +265,7 @@ const UploadPage = () => {
           
           <Button 
             onClick={handleUpload}
-            disabled={!selectedFile || !documentName}
+            disabled={!selectedFile || !documentName || showCropper}
             className="w-full bg-bsc-blue hover:bg-blue-700"
           >
             <Upload className="w-4 h-4 mr-2" />
