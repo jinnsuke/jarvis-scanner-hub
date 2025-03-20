@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -273,7 +272,7 @@ const UploadPage = () => {
             className="w-full bg-bsc-blue hover:bg-blue-700"
           >
             <Upload className="w-4 h-4 mr-2" />
-            Upload Post-Case Charge Form
+            Upload
           </Button>
         </div>
       </main>

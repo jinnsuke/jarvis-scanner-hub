@@ -87,7 +87,7 @@ const Navbar = ({ onSearch, showSearch = true }: NavbarProps) => {
               onClick={() => navigate("/")}
               className="px-3 py-1 text-sm bg-bsc-blue hover:bg-blue-700 sm:px-4 sm:py-2 sm:text-base"
             >
-              Upload Post-Case Charge Form
+              Upload
             </Button>
           )}
         </div>
