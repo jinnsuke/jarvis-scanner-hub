@@ -69,8 +69,11 @@ const UploadPage = () => {
     const canvas = document.createElement('canvas');
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
-    canvas.width = crop.width;
-    canvas.height = crop.height;
+    
+    // Set canvas dimensions to the actual cropped dimensions
+    canvas.width = crop.width * scaleX;
+    canvas.height = crop.height * scaleY;
+    
     const ctx = canvas.getContext('2d');
     
     if (!ctx) {
@@ -85,10 +88,11 @@ const UploadPage = () => {
       crop.height * scaleY,
       0,
       0,
-      crop.width,
-      crop.height,
+      crop.width * scaleX,
+      crop.height * scaleY,
     );
     
+    // Use higher quality in the toBlob method
     return new Promise((resolve) => {
       canvas.toBlob((blob) => {
         if (!blob) {
@@ -96,7 +100,7 @@ const UploadPage = () => {
         }
         const croppedUrl = URL.createObjectURL(blob);
         resolve(croppedUrl);
-      }, 'image/jpeg');
+      }, 'image/jpeg', 1.0); // Use highest quality (1.0)
     });
   };
   
@@ -184,7 +188,7 @@ const UploadPage = () => {
           <div className="mb-6">
             {showCropper && previewUrl ? (
               <div className="flex flex-col space-y-4">
-                <div className="p-2 border rounded bg-gray-50">
+                <div className="p-2 border rounded bg-gray-50 flex justify-center">
                   <ReactCrop
                     crop={crop}
                     onChange={c => setCrop(c)}
