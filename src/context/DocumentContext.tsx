@@ -32,9 +32,8 @@ export const DocumentProvider = ({ children }: { children: ReactNode }) => {
     if (!searchQuery.trim()) {
       setFilteredDocuments(documents);
     } else {
-      const results = documents.filter(doc => 
-        doc.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      // Improved search filter to be exact match on substrings
+      const results = searchDocumentsService(searchQuery);
       setFilteredDocuments(results);
     }
   }, [searchQuery, documents]);

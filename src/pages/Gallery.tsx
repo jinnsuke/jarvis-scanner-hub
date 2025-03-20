@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
 const Gallery = () => {
-  const { groupedDocuments, renameDocument, deleteDocument } = useDocuments();
+  const { groupedDocuments, renameDocument, deleteDocument, searchDocuments } = useDocuments();
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -22,6 +22,7 @@ const Gallery = () => {
 
   const handleSearch = (query: string) => {
     setSearchTerm(query);
+    searchDocuments(query);
   };
 
   const handleDelete = (id: string) => {
@@ -48,7 +49,9 @@ const Gallery = () => {
           ))
         ) : (
           <div className="flex flex-col items-center justify-center h-64">
-            <p className="mb-4 text-xl text-gray-500">No documents found</p>
+            <p className="mb-4 text-xl text-gray-500">
+              {searchTerm ? `No documents found matching "${searchTerm}"` : "No documents found"}
+            </p>
             <Button 
               onClick={() => navigate("/")}
               className="bg-bsc-blue hover:bg-blue-700"

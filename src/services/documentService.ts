@@ -83,9 +83,14 @@ export const deleteDocument = (id: string): Document[] => {
   return [...sampleDocuments]; // Return a copy to prevent mutation
 };
 
-// Search documents by name
+// Search documents by name - fixed to be properly case-insensitive and match exact substrings
 export const searchDocuments = (query: string): Document[] => {
+  if (!query.trim()) {
+    return [...sampleDocuments];
+  }
+  
+  const lowercaseQuery = query.toLowerCase().trim();
   return sampleDocuments.filter(doc => 
-    doc.name.toLowerCase().includes(query.toLowerCase())
+    doc.name.toLowerCase().includes(lowercaseQuery)
   );
 };
