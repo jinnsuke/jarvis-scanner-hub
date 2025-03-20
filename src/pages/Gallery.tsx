@@ -2,25 +2,26 @@
 import Navbar from "@/components/Navbar";
 import { useDocuments } from "@/context/DocumentContext";
 import MonthGroup from "@/components/MonthGroup";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
 const Gallery = () => {
-  const { groupedDocuments, renameDocument, searchDocuments, deleteDocument } = useDocuments();
+  const { groupedDocuments, renameDocument, deleteDocument } = useDocuments();
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     // Redirect to upload page if no documents exist
-    if (groupedDocuments.length === 0) {
+    if (groupedDocuments.length === 0 && !searchTerm) {
       navigate("/");
     }
-  }, [groupedDocuments, navigate]);
+  }, [groupedDocuments, navigate, searchTerm]);
 
   const handleSearch = (query: string) => {
-    searchDocuments(query);
+    setSearchTerm(query);
   };
 
   const handleDelete = (id: string) => {
@@ -52,7 +53,7 @@ const Gallery = () => {
               onClick={() => navigate("/")}
               className="bg-bsc-blue hover:bg-blue-700"
             >
-              Upload Document
+              Upload Post-Case Charge Form
             </Button>
           </div>
         )}

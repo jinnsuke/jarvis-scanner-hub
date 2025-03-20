@@ -1,5 +1,5 @@
 
-import { createContext, useState, useContext, ReactNode } from "react";
+import { createContext, useState, useContext, ReactNode, useEffect } from "react";
 import { Document, MonthGroup } from "@/types/document";
 import { 
   getAllDocuments, 
@@ -24,15 +24,27 @@ const DocumentContext = createContext<DocumentContextType | undefined>(undefined
 
 export const DocumentProvider = ({ children }: { children: ReactNode }) => {
   const [documents, setDocuments] = useState<Document[]>(getAllDocuments());
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [filteredDocuments, setFilteredDocuments] = useState<Document[]>(documents);
   
+  // Update filtered documents whenever search query or documents change
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredDocuments(documents);
+    } else {
+      const results = documents.filter(doc => 
+        doc.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredDocuments(results);
+    }
+  }, [searchQuery, documents]);
+
   const groupedDocuments = groupDocumentsByMonth(filteredDocuments);
   
   const addNewDocument = (name: string, imageSrc: string) => {
     const newDoc = addDocument(name, imageSrc);
     const updatedDocs = [...documents, newDoc];
     setDocuments(updatedDocs);
-    setFilteredDocuments(updatedDocs);
     return newDoc;
   };
   
@@ -40,23 +52,16 @@ export const DocumentProvider = ({ children }: { children: ReactNode }) => {
     const updatedDoc = renameDocumentService(id, newName);
     if (updatedDoc) {
       setDocuments(documents.map(doc => doc.id === id ? { ...doc, name: newName } : doc));
-      setFilteredDocuments(filteredDocuments.map(doc => doc.id === id ? { ...doc, name: newName } : doc));
     }
   };
   
   const searchDocuments = (query: string) => {
-    if (!query.trim()) {
-      setFilteredDocuments(documents);
-    } else {
-      const results = searchDocumentsService(query);
-      setFilteredDocuments(results);
-    }
+    setSearchQuery(query);
   };
   
   const deleteDocument = (id: string) => {
     const remainingDocs = deleteDocumentService(id);
     setDocuments(remainingDocs);
-    setFilteredDocuments(remainingDocs);
   };
   
   return (

@@ -3,7 +3,7 @@ import { Search } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface NavbarProps {
   onSearch?: (searchTerm: string) => void;
@@ -15,11 +15,15 @@ const Navbar = ({ onSearch, showSearch = true }: NavbarProps) => {
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Call onSearch when searchTerm changes to implement real-time filtering
+  useEffect(() => {
     if (onSearch) {
       onSearch(searchTerm);
     }
+  }, [searchTerm, onSearch]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
   };
 
   return (
@@ -36,16 +40,16 @@ const Navbar = ({ onSearch, showSearch = true }: NavbarProps) => {
         
         <div className="flex items-center gap-2 sm:gap-4">
           {showSearch && (
-            <form onSubmit={handleSearch} className="relative hidden w-full max-w-xs sm:block">
+            <div className="relative hidden w-full max-w-xs sm:block">
               <Input
                 type="text"
                 placeholder="Search documents..."
                 className="pl-10"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={handleSearchChange}
               />
               <Search className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
-            </form>
+            </div>
           )}
           
           {location.pathname === '/' && (
@@ -63,7 +67,7 @@ const Navbar = ({ onSearch, showSearch = true }: NavbarProps) => {
               onClick={() => navigate("/")}
               className="px-3 py-1 text-sm bg-bsc-blue hover:bg-blue-700 sm:px-4 sm:py-2 sm:text-base"
             >
-              Upload New
+              Upload Post-Case Charge Form
             </Button>
           )}
         </div>
