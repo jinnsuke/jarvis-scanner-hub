@@ -52,12 +52,7 @@ const Gallery = () => {
             <p className="mb-4 text-xl text-gray-500">
               {searchTerm ? `No documents found matching "${searchTerm}"` : "No documents found"}
             </p>
-            <Button 
-              onClick={() => navigate("/")}
-              className="bg-bsc-blue hover:bg-blue-700"
-            >
-              Upload Post-Case Charge Form
-            </Button>
+            {/* Removed redundant "Upload Post-Case Charge Form" button */}
           </div>
         )}
       </main>
