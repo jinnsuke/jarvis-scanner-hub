@@ -48,8 +48,8 @@ const Gallery = () => {
             />
           ))
         ) : (
-          <div className="flex flex-col items-center justify-center h-64">
-            <p className="mb-4 text-xl text-gray-500">
+          <div className="flex flex-col items-center justify-center h-[calc(100vh-8rem)]">
+            <p className="text-xl text-gray-500 text-center px-4">
               {searchTerm ? `No documents found matching "${searchTerm}"` : "No documents found"}
             </p>
             {/* Removed redundant "Upload Post-Case Charge Form" button */}
