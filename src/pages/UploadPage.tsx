@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
-import { ImagePlus, Upload, Crop, Save, X } from "lucide-react";
+import { ImagePlus, Upload, Crop, X } from "lucide-react";
 import { useDocuments } from "@/context/DocumentContext";
 import { useToast } from "@/components/ui/use-toast";
 import ReactCrop, { type Crop as CropType, centerCrop, makeAspectCrop } from 'react-image-crop';
@@ -141,19 +141,47 @@ const UploadPage = () => {
     setShowCropper(false);
   };
   
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (selectedFile && documentName) {
-      // In a real app, this would upload to a server
-      // For now we'll just use the preview URL
-      const newDocument = addNewDocument(documentName, previewUrl || "");
-      
-      toast({
-        title: "Document uploaded",
-        description: "Your document has been successfully uploaded.",
-      });
-      
-      // Navigate to gallery
-      navigate("/gallery");
+      // FormData to upload the file
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+
+      try {
+        // Upload the file to the backend
+        const response = await fetch("http://localhost:3000/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+          // Add the document to your local context/state if needed
+          addNewDocument(documentName, previewUrl || "");
+          
+          toast({
+            title: "Document uploaded",
+            description: "Your document has been successfully uploaded.",
+          });
+          
+          // Navigate to gallery
+          navigate("/gallery");
+        } else {
+          toast({
+            title: "Upload failed",
+            description: `Error: ${data.message}`,
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error("Error uploading file:", error);
+        toast({
+          title: "Upload failed",
+          description: "There was an error uploading the file.",
+          variant: "destructive",
+        });
+      }
     } else {
       toast({
         title: "Upload failed",
