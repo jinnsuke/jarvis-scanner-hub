@@ -1,41 +1,28 @@
 
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Pen } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { getDocumentById } from "@/services/documentService";
 import { Document } from "@/types/document";
-import { useDocuments } from "@/context/DocumentContext";
 
 const DocumentDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { renameDocument } = useDocuments();
   
   const [document, setDocument] = useState<Document | null>(null);
-  const [isEditingName, setIsEditingName] = useState(false);
-  const [newName, setNewName] = useState("");
   
   useEffect(() => {
     if (id) {
       const doc = getDocumentById(id);
       if (doc) {
         setDocument(doc);
-        setNewName(doc.name);
       } else {
         // Document not found, redirect to gallery
         navigate("/");
       }
     }
   }, [id, navigate]);
-  
-  const handleRename = () => {
-    if (document && newName.trim()) {
-      renameDocument(document.id, newName);
-      setDocument({ ...document, name: newName });
-      setIsEditingName(false);
-    }
-  };
   
   if (!document) {
     return <div className="p-4">Loading...</div>;
@@ -54,33 +41,9 @@ const DocumentDetail = () => {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           
-          {isEditingName ? (
-            <div className="flex flex-1">
-              <input
-                type="text"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                className="flex-1 p-2 border rounded-l focus:outline-none focus:ring-1 focus:ring-bsc-blue"
-                autoFocus
-              />
-              <button
-                onClick={handleRename}
-                className="px-3 py-2 text-white bg-bsc-blue rounded-r hover:bg-blue-700"
-              >
-                Save
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center flex-1">
-              <h1 className="text-lg font-semibold truncate">{document.name}</h1>
-              <button
-                onClick={() => setIsEditingName(true)}
-                className="p-1 ml-2 text-gray-500 hover:text-bsc-blue"
-              >
-                <Pen className="w-4 h-4" />
-              </button>
-            </div>
-          )}
+          <div className="flex items-center flex-1">
+            <h1 className="text-lg font-semibold truncate">{document.name}</h1>
+          </div>
         </div>
       </header>
       
