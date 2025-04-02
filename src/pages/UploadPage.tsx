@@ -146,6 +146,7 @@ const UploadPage = () => {
       // FormData to upload the file
       const formData = new FormData();
       formData.append("file", selectedFile);
+      formData.append("documentName", documentName);
 
       try {
         // Upload the file to the backend
