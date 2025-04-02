@@ -1,4 +1,3 @@
-
 import Navbar from "@/components/Navbar";
 import { useDocuments } from "@/context/DocumentContext";
 import MonthGroup from "@/components/MonthGroup";
@@ -33,6 +32,12 @@ const Gallery = () => {
     });
   };
 
+  const handleClick = (name: string) => {
+    // Encode the document name to make it URL-safe
+    const encodedName = encodeURIComponent(name);
+    navigate(`/document/${encodedName}`);  // Navigate using the document name
+  };
+
   return (
     <div className="min-h-screen bg-bsc-lightgray">
       <Navbar onSearch={handleSearch} showSearch={true} />
@@ -45,6 +50,7 @@ const Gallery = () => {
               group={group} 
               onRename={renameDocument}
               onDelete={handleDelete}
+              onClick={handleClick} // Add onClick handler here
             />
           ))
         ) : (
@@ -52,7 +58,6 @@ const Gallery = () => {
             <p className="text-xl text-gray-500 text-center px-4">
               {searchTerm ? `No documents found matching "${searchTerm}"` : "No documents found"}
             </p>
-            {/* Removed redundant "Upload Post-Case Charge Form" button */}
           </div>
         )}
       </main>

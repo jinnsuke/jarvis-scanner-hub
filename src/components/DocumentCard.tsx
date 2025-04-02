@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Trash2 } from "lucide-react";
@@ -18,14 +17,18 @@ import {
 interface DocumentCardProps {
   document: Document;
   onDelete?: (id: string) => void;
+  onRename?: (id: string, newName: string) => void;  // Add onRename to the props
+  onClick?: (name: string) => void;  // Add onClick to handle navigation
 }
 
-const DocumentCard = ({ document, onDelete }: DocumentCardProps) => {
+const DocumentCard = ({ document, onDelete, onRename, onClick }: DocumentCardProps) => {
   const navigate = useNavigate();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const handleCardClick = () => {
-    navigate(`/document/${document.id}`);
+    if (onClick) {
+      onClick(document.name); // Pass document name to the onClick handler
+    }
   };
 
   const handleDelete = () => {
@@ -35,11 +38,17 @@ const DocumentCard = ({ document, onDelete }: DocumentCardProps) => {
     setShowDeleteDialog(false);
   };
 
+  const handleRename = (newName: string) => {
+    if (onRename) {
+      onRename(document.id, newName);
+    }
+  };
+
   return (
     <>
       <Card 
         className="overflow-hidden cursor-pointer group"
-        onClick={handleCardClick}
+        onClick={handleCardClick}  // Trigger onClick when the card is clicked
       >
         <div className="relative">
           <img 
@@ -51,7 +60,7 @@ const DocumentCard = ({ document, onDelete }: DocumentCardProps) => {
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
               <button
                 onClick={(e) => {
-                  e.stopPropagation();
+                  e.stopPropagation(); // Prevent triggering the card click event
                   setShowDeleteDialog(true);
                 }}
                 className="p-1 bg-white rounded-full shadow-md"
@@ -64,6 +73,8 @@ const DocumentCard = ({ document, onDelete }: DocumentCardProps) => {
         </div>
         <div className="p-3">
           <h3 className="text-sm font-medium truncate">{document.name}</h3>
+          {/* Optionally add a button to trigger renaming */}
+          <button onClick={() => handleRename("New Document Name")}>Rename</button>
         </div>
       </Card>
 
