@@ -1,10 +1,10 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { getDocumentById } from "@/services/documentService";
 import { Document } from "@/types/document";
+
 
 const DocumentDetail = () => {
   const { id } = useParams<{ id: string }>();
