@@ -2,19 +2,11 @@
 import { Document, MonthGroup } from "@/types/document";
 import { v4 as uuidv4 } from "uuid";
 
-// Placeholder data
+// Placeholder image
 const placeholderImage = "https://placehold.co/600x400/e6f2ff/0055B8?text=BSC+Document";
 
-// Sample document with date set to January 2025
-const sampleDocuments: Document[] = [
-  {
-    id: uuidv4(),
-    name: "1/1/25 KTPH Endo",
-    uploadDate: new Date(2025, 0, 15), // January 2025 (month is 0-indexed)
-    imageSrc: placeholderImage,
-    extractedText: "Boston Scientific MUSTANG 7.0mm x 60mm 75cm GTIN 12345 REF H12345 LOT 12345"
-  }
-];
+// Empty array instead of sample documents
+const sampleDocuments: Document[] = [];
 
 // Function to group documents by month
 export const groupDocumentsByMonth = (documents: Document[]): MonthGroup[] => {
@@ -59,17 +51,6 @@ export const addDocument = (name: string, imageSrc: string): Document => {
   
   sampleDocuments.push(newDocument);
   return newDocument;
-};
-
-// Rename a document
-export const renameDocument = (id: string, newName: string): Document | undefined => {
-  const document = sampleDocuments.find(doc => doc.id === id);
-  
-  if (document) {
-    document.name = newName;
-  }
-  
-  return document;
 };
 
 // Delete a document
