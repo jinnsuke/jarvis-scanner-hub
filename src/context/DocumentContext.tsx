@@ -4,7 +4,6 @@ import { Document, MonthGroup } from "@/types/document";
 import { 
   getAllDocuments, 
   addDocument, 
-  renameDocument as renameDocumentService,
   searchDocuments as searchDocumentsService,
   groupDocumentsByMonth,
   deleteDocument as deleteDocumentService
@@ -15,7 +14,6 @@ interface DocumentContextType {
   groupedDocuments: MonthGroup[];
   filteredDocuments: Document[];
   addNewDocument: (name: string, imageSrc: string) => Document;
-  renameDocument: (id: string, newName: string) => void;
   searchDocuments: (query: string) => void;
   deleteDocument: (id: string) => void;
 }
@@ -47,13 +45,6 @@ export const DocumentProvider = ({ children }: { children: ReactNode }) => {
     return newDoc;
   };
   
-  const renameDocument = (id: string, newName: string) => {
-    const updatedDoc = renameDocumentService(id, newName);
-    if (updatedDoc) {
-      setDocuments(documents.map(doc => doc.id === id ? { ...doc, name: newName } : doc));
-    }
-  };
-  
   const searchDocuments = (query: string) => {
     setSearchQuery(query);
   };
@@ -70,7 +61,6 @@ export const DocumentProvider = ({ children }: { children: ReactNode }) => {
         groupedDocuments,
         filteredDocuments,
         addNewDocument,
-        renameDocument,
         searchDocuments,
         deleteDocument
       }}

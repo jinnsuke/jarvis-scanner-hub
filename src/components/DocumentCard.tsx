@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Trash2 } from "lucide-react";
@@ -17,11 +18,10 @@ import {
 interface DocumentCardProps {
   document: Document;
   onDelete?: (id: string) => void;
-  onRename?: (id: string, newName: string) => void;  // Add onRename to the props
-  onClick?: (name: string) => void;  // Add onClick to handle navigation
+  onClick?: (name: string) => void;  // Keep the onClick to handle navigation
 }
 
-const DocumentCard = ({ document, onDelete, onRename, onClick }: DocumentCardProps) => {
+const DocumentCard = ({ document, onDelete, onClick }: DocumentCardProps) => {
   const navigate = useNavigate();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
@@ -36,12 +36,6 @@ const DocumentCard = ({ document, onDelete, onRename, onClick }: DocumentCardPro
       onDelete(document.id);
     }
     setShowDeleteDialog(false);
-  };
-
-  const handleRename = (newName: string) => {
-    if (onRename) {
-      onRename(document.id, newName);
-    }
   };
 
   return (
@@ -73,8 +67,6 @@ const DocumentCard = ({ document, onDelete, onRename, onClick }: DocumentCardPro
         </div>
         <div className="p-3">
           <h3 className="text-sm font-medium truncate">{document.name}</h3>
-          {/* Optionally add a button to trigger renaming */}
-          <button onClick={() => handleRename("New Document Name")}>Rename</button>
         </div>
       </Card>
 

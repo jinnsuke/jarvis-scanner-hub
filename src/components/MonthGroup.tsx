@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { MonthGroup as MonthGroupType } from "@/types/document";
 import DocumentCard from "./DocumentCard";
@@ -5,12 +6,11 @@ import { useNavigate } from "react-router-dom";  // Import useNavigate
 
 interface MonthGroupProps {
   group: MonthGroupType;
-  onRename: (id: string, newName: string) => void;
   onDelete: (id: string) => void;
   onClick: (name: string) => void;  // Ensure onClick is passed down
 }
 
-const MonthGroup = ({ group, onRename, onDelete, onClick }: MonthGroupProps) => {
+const MonthGroup = ({ group, onDelete, onClick }: MonthGroupProps) => {
   const navigate = useNavigate();  // Initialize navigate hook
 
   const handleDocumentClick = (name: string) => {
@@ -26,7 +26,6 @@ const MonthGroup = ({ group, onRename, onDelete, onClick }: MonthGroupProps) => 
           <DocumentCard 
             key={document.id} 
             document={document} 
-            onRename={onRename} 
             onDelete={onDelete}
             onClick={(name) => handleDocumentClick(name)}  // Pass handleDocumentClick to onClick
           />

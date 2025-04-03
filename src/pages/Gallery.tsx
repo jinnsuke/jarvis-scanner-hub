@@ -1,3 +1,4 @@
+
 import Navbar from "@/components/Navbar";
 import { useDocuments } from "@/context/DocumentContext";
 import MonthGroup from "@/components/MonthGroup";
@@ -7,17 +8,10 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
 const Gallery = () => {
-  const { groupedDocuments, renameDocument, deleteDocument, searchDocuments } = useDocuments();
+  const { groupedDocuments, deleteDocument, searchDocuments } = useDocuments();
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  useEffect(() => {
-    // Redirect to upload page if no documents exist
-    if (groupedDocuments.length === 0 && !searchTerm) {
-      navigate("/");
-    }
-  }, [groupedDocuments, navigate, searchTerm]);
 
   const handleSearch = (query: string) => {
     setSearchTerm(query);
@@ -48,7 +42,6 @@ const Gallery = () => {
             <MonthGroup 
               key={group.month} 
               group={group} 
-              onRename={renameDocument}
               onDelete={handleDelete}
               onClick={handleClick} // Add onClick handler here
             />
@@ -56,8 +49,14 @@ const Gallery = () => {
         ) : (
           <div className="flex flex-col items-center justify-center h-[calc(100vh-8rem)]">
             <p className="text-xl text-gray-500 text-center px-4">
-              {searchTerm ? `No documents found matching "${searchTerm}"` : "No documents found"}
+              {searchTerm ? `No documents found matching "${searchTerm}"` : "No documents uploaded yet"}
             </p>
+            <Button
+              onClick={() => navigate("/")}
+              className="mt-4 px-4 py-2 bg-bsc-blue hover:bg-blue-700"
+            >
+              Upload
+            </Button>
           </div>
         )}
       </main>
