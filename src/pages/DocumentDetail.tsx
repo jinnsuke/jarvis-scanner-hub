@@ -8,21 +8,21 @@ const DocumentDetail = () => {
   const { name } = useParams<{ name: string }>();
   const navigate = useNavigate();
 
-  const [document, setDocument] = useState<any[] | null>(null); // Expecting an array now
+  const [document, setDocument] = useState<any[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if (name) {
-      console.log("Fetching document with name:", name); // Log to check document name
+      console.log("Fetching document with name:", name);
       const fetchDocument = async () => {
         try {
           const response = await fetch(`http://localhost:3000/api/document/${name}`);
           console.log("API Response Status:", response.status);
           if (response.ok) {
             const data = await response.json();
-            console.log("Fetched Document Data:", data); // Log the full document data
+            console.log("Fetched Document Data:", data);
             if (data && data.length > 0) {
-              setDocument(data); // Set the full array of documents
+              setDocument(data);
             }
           } else {
             console.error("Document not found");
@@ -67,15 +67,6 @@ const DocumentDetail = () => {
       </header>
 
       <main className="container p-4 mx-auto">
-        {/* Display the document image */}
-        <div className="mb-6 flex justify-center">
-          <img 
-            src={`http://localhost:3000/api/images/${name}`} 
-            alt={name ? decodeURIComponent(name) : "Document image"} 
-            className="max-w-full max-h-96 object-contain rounded-lg shadow-md"
-          />
-        </div>
-
         <div className="p-4 bg-white rounded-lg shadow">
           <h3 className="mb-4 text-lg font-semibold">Extracted Stickers</h3>
           <div className="space-y-4">
