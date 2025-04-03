@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { ImagePlus, Upload, Crop, X } from "lucide-react";
 import { useDocuments } from "@/context/DocumentContext";
 import { useToast } from "@/components/ui/use-toast";
+import { Progress } from "@/components/ui/progress";
+import { io, Socket } from "socket.io-client";
 import ReactCrop, { type Crop as CropType, centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 
@@ -13,29 +15,61 @@ const UploadPage = () => {
   const { addNewDocument } = useDocuments();
   const { toast } = useToast();
   
-  const [selectedFile, setSelectedFile] = useState<File | null>(null); // Holds the selected image file to be uploaded
-  const [documentName, setDocumentName] = useState(""); // Stores the name of the document entered by the user
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null); // Stores the URL of the image that will be shown before and after cropping
-  const [showCropper, setShowCropper] = useState(false); // Decides whether to show the cropping tool
-  const [crop, setCrop] = useState<CropType>(); // Contains information about the crop 
-  const imgRef = useRef<HTMLImageElement>(null); // A reference to the image DOM element used for cropping
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [documentName, setDocumentName] = useState("");
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [crop, setCrop] = useState<CropType>();
+  const imgRef = useRef<HTMLImageElement>(null);
+  
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [socketInstance, setSocketInstance] = useState<Socket | null>(null);
+  
+  const initSocket = () => {
+    const socket = io("http://localhost:3000");
+    
+    socket.on("connect", () => {
+      console.log("Connected to socket server");
+    });
+    
+    socket.on("upload-progress", (data: { progress: number }) => {
+      setUploadProgress(data.progress);
+    });
+    
+    socket.on("upload-complete", () => {
+      setUploadProgress(100);
+      setTimeout(() => {
+        setIsUploading(false);
+        setUploadProgress(0);
+      }, 1000);
+    });
+    
+    socket.on("upload-error", (error: string) => {
+      setIsUploading(false);
+      toast({
+        title: "Upload failed",
+        description: error,
+        variant: "destructive",
+      });
+    });
+    
+    return socket;
+  };
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setSelectedFile(file); // Stores the file in the selectedFile state
+      setSelectedFile(file);
       
-      // Generate a default name from the file name
       const defaultName = file.name.split('.')[0];
       setDocumentName(defaultName);
       
-      // Create a preview URL
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
       
-      // Initialize the cropper
       setShowCropper(true);
-      setCrop(undefined); // Reset crop when a new image is selected
+      setCrop(undefined);
     }
   };
   
@@ -69,7 +103,6 @@ const UploadPage = () => {
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
     
-    // Set canvas dimensions to the actual cropped dimensions
     canvas.width = crop.width * scaleX;
     canvas.height = crop.height * scaleY;
     
@@ -91,7 +124,6 @@ const UploadPage = () => {
       crop.height * scaleY,
     );
     
-    // Use higher quality in the toBlob method
     return new Promise((resolve) => {
       canvas.toBlob((blob) => {
         if (!blob) {
@@ -99,7 +131,7 @@ const UploadPage = () => {
         }
         const croppedUrl = URL.createObjectURL(blob);
         resolve(croppedUrl);
-      }, 'image/jpeg', 1.0); // Use highest quality (1.0)
+      }, 'image/jpeg', 1.0);
     });
   };
   
@@ -111,11 +143,9 @@ const UploadPage = () => {
       setPreviewUrl(croppedUrl);
       setShowCropper(false);
       
-      // Convert the cropped image URL to a Blob
       const response = await fetch(croppedUrl);
       const blob = await response.blob();
       
-      // Create a new File object from the Blob
       const croppedFile = new File([blob], selectedFile?.name || "cropped-image.jpg", {
         type: 'image/jpeg',
         lastModified: new Date().getTime(),
@@ -143,22 +173,31 @@ const UploadPage = () => {
   
   const handleUpload = async () => {
     if (selectedFile && documentName) {
-      // Creates a FormData object and appends the file and name
+      if (!socketInstance) {
+        const socket = initSocket();
+        setSocketInstance(socket);
+      }
+      
       const formData = new FormData();
       formData.append("file", selectedFile);
       formData.append("documentName", documentName);
-
+      
+      if (socketInstance) {
+        formData.append("socketId", socketInstance.id);
+      }
+      
       try {
-        // Upload the file to the backend
+        setIsUploading(true);
+        setUploadProgress(0);
+        
         const response = await fetch("http://localhost:3000/api/upload", {
           method: "POST",
           body: formData,
         });
-
+        
         const data = await response.json();
         
         if (response.ok) {
-          // Add the document to your local context/state if needed
           addNewDocument(documentName, previewUrl || "");
           
           toast({
@@ -166,7 +205,6 @@ const UploadPage = () => {
             description: "Your document has been successfully uploaded.",
           });
           
-          // Navigate to gallery
           navigate("/gallery");
         } else {
           toast({
@@ -174,6 +212,7 @@ const UploadPage = () => {
             description: `Error: ${data.message}`,
             variant: "destructive",
           });
+          setIsUploading(false);
         }
       } catch (error) {
         console.error("Error uploading file:", error);
@@ -182,6 +221,7 @@ const UploadPage = () => {
           description: "There was an error uploading the file.",
           variant: "destructive",
         });
+        setIsUploading(false);
       }
     } else {
       toast({
@@ -295,13 +335,36 @@ const UploadPage = () => {
             )}
           </div>
           
+          {isUploading && (
+            <div className="mb-6 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-700">Uploading...</span>
+                <span className="text-sm font-medium text-gray-700">{uploadProgress}%</span>
+              </div>
+              <Progress value={uploadProgress} className="h-2" />
+              <p className="text-xs text-gray-500 text-center">Connected to socket server, waiting for progress updates...</p>
+            </div>
+          )}
+          
           <Button 
             onClick={handleUpload}
-            disabled={!selectedFile || !documentName || showCropper}
+            disabled={!selectedFile || !documentName || showCropper || isUploading}
             className="w-full bg-bsc-blue hover:bg-blue-700"
           >
-            <Upload className="w-4 h-4 mr-2" />
-            Upload
+            {isUploading ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Uploading...
+              </>
+            ) : (
+              <>
+                <Upload className="w-4 h-4 mr-2" />
+                Upload
+              </>
+            )}
           </Button>
         </div>
       </main>
