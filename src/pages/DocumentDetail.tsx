@@ -61,14 +61,23 @@ const DocumentDetail = () => {
           </Button>
 
           <div className="flex items-center flex-1">
-            <h1 className="text-lg font-semibold truncate">Document Details</h1>
+            <h1 className="text-lg font-semibold truncate">{name ? decodeURIComponent(name) : "Document"}</h1>
           </div>
         </div>
       </header>
 
       <main className="container p-4 mx-auto">
+        {/* Display the document image */}
+        <div className="mb-6 flex justify-center">
+          <img 
+            src={`http://localhost:3000/api/images/${name}`} 
+            alt={name ? decodeURIComponent(name) : "Document image"} 
+            className="max-w-full max-h-96 object-contain rounded-lg shadow-md"
+          />
+        </div>
+
         <div className="p-4 bg-white rounded-lg shadow">
-          <h3 className="mb-4 text-lg font-semibold">Document Information</h3>
+          <h3 className="mb-4 text-lg font-semibold">Extracted Stickers</h3>
           <div className="space-y-4">
             {document.map((doc, index) => (
               <div key={doc.gtin}>
