@@ -13,17 +13,17 @@ const UploadPage = () => {
   const { addNewDocument } = useDocuments();
   const { toast } = useToast();
   
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [documentName, setDocumentName] = useState("");
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [showCropper, setShowCropper] = useState(false);
-  const [crop, setCrop] = useState<CropType>();
-  const imgRef = useRef<HTMLImageElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null); // Holds the selected image file to be uploaded
+  const [documentName, setDocumentName] = useState(""); // Stores the name of the document entered by the user
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null); // Stores the URL of the image that will be shown before and after cropping
+  const [showCropper, setShowCropper] = useState(false); // Decides whether to show the cropping tool
+  const [crop, setCrop] = useState<CropType>(); // Contains information about the crop 
+  const imgRef = useRef<HTMLImageElement>(null); // A reference to the image DOM element used for cropping
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setSelectedFile(file);
+      setSelectedFile(file); // Stores the file in the selectedFile state
       
       // Generate a default name from the file name
       const defaultName = file.name.split('.')[0];
@@ -143,7 +143,7 @@ const UploadPage = () => {
   
   const handleUpload = async () => {
     if (selectedFile && documentName) {
-      // FormData to upload the file
+      // Creates a FormData object and appends the file and name
       const formData = new FormData();
       formData.append("file", selectedFile);
       formData.append("documentName", documentName);
