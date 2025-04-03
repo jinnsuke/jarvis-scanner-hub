@@ -87,6 +87,12 @@ const DocumentDetail = () => {
                 <p className="text-gray-700">
                   <strong>Lot:</strong> {doc.lot}
                 </p>
+                <p className="text-gray-700">
+                  <strong>Ref:</strong> {doc.ref} {/* Add ref */}
+                </p>
+                <p className="text-gray-700">
+                  <strong>Quantity:</strong> {doc.quantity} {/* Add quantity */}
+                </p>
                 <hr className="my-4" />
               </div>
             ))}
