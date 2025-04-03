@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,7 +25,7 @@ const DocumentDetail = () => {
             }
           } else {
             console.error("Document not found");
-            navigate("/");
+            navigate("/gallery");
           }
         } catch (error) {
           console.error("Error fetching document:", error);
@@ -54,7 +53,7 @@ const DocumentDetail = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/gallery")}
             className="mr-2"
           >
             <ArrowLeft className="w-5 h-5" />
