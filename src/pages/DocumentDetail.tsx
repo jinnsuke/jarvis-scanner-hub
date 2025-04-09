@@ -2,10 +2,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/components/ui/use-toast";
 
 const DocumentDetail = () => {
   const { name } = useParams<{ name: string }>();
   const navigate = useNavigate();
+  const { token } = useAuth();
+  const { toast } = useToast();
 
   const [document, setDocument] = useState<any[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -15,20 +19,51 @@ const DocumentDetail = () => {
       console.log("Fetching document with name:", name);
       const fetchDocument = async () => {
         try {
-          const response = await fetch(`http://localhost:3000/api/document/${name}`);
+          const response = await fetch(`http://localhost:3000/api/document/${name}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            },
+            credentials: 'include'
+          });
+          
           console.log("API Response Status:", response.status);
+          
           if (response.ok) {
             const data = await response.json();
             console.log("Fetched Document Data:", data);
             if (data && data.length > 0) {
               setDocument(data);
+            } else {
+              toast({
+                title: "Document not found",
+                description: "The requested document could not be found.",
+                variant: "destructive"
+              });
+              navigate("/gallery");
             }
+          } else if (response.status === 401) {
+            toast({
+              title: "Authentication error",
+              description: "Please log in again to view this document.",
+              variant: "destructive"
+            });
+            navigate("/login");
           } else {
-            console.error("Document not found");
+            toast({
+              title: "Error",
+              description: "Failed to load document. Please try again.",
+              variant: "destructive"
+            });
             navigate("/gallery");
           }
         } catch (error) {
           console.error("Error fetching document:", error);
+          toast({
+            title: "Error",
+            description: "An unexpected error occurred while loading the document.",
+            variant: "destructive"
+          });
+          navigate("/gallery");
         } finally {
           setLoading(false);
         }
@@ -36,7 +71,7 @@ const DocumentDetail = () => {
 
       fetchDocument();
     }
-  }, [name, navigate]);
+  }, [name, navigate, token, toast]);
 
   if (loading) {
     return <div className="p-4">Loading document...</div>;

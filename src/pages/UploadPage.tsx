@@ -2,18 +2,20 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
-import { ImagePlus, Upload, Crop, X } from "lucide-react";
+import { ImagePlus, Upload, Crop, X, LogOut } from "lucide-react";
 import { useDocuments } from "@/context/DocumentContext";
 import { useToast } from "@/components/ui/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { io, Socket } from "socket.io-client";
 import ReactCrop, { type Crop as CropType, centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
+import { useAuth } from "@/context/AuthContext";
 
 const UploadPage = () => {
   const navigate = useNavigate();
   const { addNewDocument } = useDocuments();
   const { toast } = useToast();
+  const { user, logout, token } = useAuth();
   
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [documentName, setDocumentName] = useState("");
@@ -192,33 +194,33 @@ const UploadPage = () => {
         
         const response = await fetch("http://localhost:3000/api/upload", {
           method: "POST",
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
           body: formData,
+          credentials: 'include',
+          mode: 'cors'
         });
         
-        const data = await response.json();
-        
-        if (response.ok) {
-          addNewDocument(documentName, previewUrl || "");
-          
-          toast({
-            title: "Document uploaded",
-            description: "Your document has been successfully uploaded.",
-          });
-          
-          navigate("/gallery");
-        } else {
-          toast({
-            title: "Upload failed",
-            description: `Error: ${data.message}`,
-            variant: "destructive",
-          });
-          setIsUploading(false);
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+          throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
         }
+        
+        const data = await response.json();
+        addNewDocument(documentName, previewUrl || "");
+        
+        toast({
+          title: "Document uploaded",
+          description: "Your document has been successfully uploaded.",
+        });
+        
+        navigate("/gallery");
       } catch (error) {
         console.error("Error uploading file:", error);
         toast({
           title: "Upload failed",
-          description: "There was an error uploading the file.",
+          description: error instanceof Error ? error.message : "There was an error uploading the file.",
           variant: "destructive",
         });
         setIsUploading(false);
@@ -232,9 +234,29 @@ const UploadPage = () => {
     }
   };
   
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+  
   return (
     <div className="min-h-screen bg-bsc-lightgray">
-      <Navbar showSearch={false} />
+      <Navbar showSearch={false}>
+        <div className="flex items-center gap-4">
+          <span className="text-sm font-medium text-gray-700">
+            Welcome, {user?.name}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleLogout}
+            className="flex items-center gap-2"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </Button>
+        </div>
+      </Navbar>
       
       <main className="container px-4 py-6 mx-auto sm:py-10">
         <div className="max-w-md p-6 mx-auto mt-4 bg-white rounded-lg shadow-md">

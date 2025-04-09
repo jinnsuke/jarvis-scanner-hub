@@ -1,4 +1,3 @@
-
 import { Search } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -9,9 +8,10 @@ import { useIsMobile } from "@/hooks/use-mobile";
 interface NavbarProps {
   onSearch?: (searchTerm: string) => void;
   showSearch?: boolean;
+  children?: React.ReactNode;
 }
 
-const Navbar = ({ onSearch, showSearch = true }: NavbarProps) => {
+const Navbar = ({ onSearch, showSearch = true, children }: NavbarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
@@ -71,6 +71,8 @@ const Navbar = ({ onSearch, showSearch = true }: NavbarProps) => {
               <Search className="w-5 h-5" />
             </Button>
           )}
+          
+          {children}
           
           {location.pathname === '/' && (
             <Button 
