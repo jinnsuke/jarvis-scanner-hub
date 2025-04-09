@@ -242,20 +242,9 @@ const UploadPage = () => {
   return (
     <div className="min-h-screen bg-bsc-lightgray">
       <Navbar showSearch={false}>
-        <div className="flex items-center gap-4">
-          <span className="text-sm font-medium text-gray-700">
-            Welcome, {user?.name}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleLogout}
-            className="flex items-center gap-2"
-          >
-            <LogOut className="w-4 h-4" />
-            Logout
-          </Button>
-        </div>
+        <span className="text-sm font-medium text-gray-700">
+          Welcome, {user?.name}
+        </span>
       </Navbar>
       
       <main className="container px-4 py-6 mx-auto sm:py-10">

@@ -1,9 +1,10 @@
-import { Search } from "lucide-react";
+import { Search, LogOut } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/context/AuthContext";
 
 interface NavbarProps {
   onSearch?: (searchTerm: string) => void;
@@ -14,9 +15,15 @@ interface NavbarProps {
 const Navbar = ({ onSearch, showSearch = true, children }: NavbarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const isMobile = useIsMobile();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   // Call onSearch when searchTerm changes to implement real-time filtering
   useEffect(() => {
@@ -74,7 +81,7 @@ const Navbar = ({ onSearch, showSearch = true, children }: NavbarProps) => {
           
           {children}
           
-          {location.pathname === '/' && (
+          {(location.pathname === '/' || location.pathname === '/upload') && (
             <Button 
               onClick={() => navigate("/gallery")}
               className="px-3 py-1 text-sm text-white bg-bsc-blue hover:bg-blue-700 sm:px-4 sm:py-2 sm:text-base"
@@ -86,12 +93,21 @@ const Navbar = ({ onSearch, showSearch = true, children }: NavbarProps) => {
           
           {location.pathname === '/gallery' && (
             <Button 
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/upload")}
               className="px-3 py-1 text-sm bg-bsc-blue hover:bg-blue-700 sm:px-4 sm:py-2 sm:text-base"
             >
               Upload
             </Button>
           )}
+
+          <Button
+            onClick={handleLogout}
+            variant="outline"
+            className="px-3 py-1 text-sm border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 sm:px-4 sm:py-2 sm:text-base flex items-center gap-2"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </Button>
         </div>
       </div>
       
