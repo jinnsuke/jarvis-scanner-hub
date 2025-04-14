@@ -185,29 +185,33 @@ const DocumentDetail = () => {
             <div className="space-y-4">
               {document.map((doc, index) => (
                 <div key={doc.gtin} className="p-4 border rounded-lg">
-                  <h4 className="mb-2 font-medium text-bsc-blue">{`Sticker ${index + 1}`}</h4>
-                  <div className="grid grid-cols-2 gap-2">
-                    <p className="text-gray-700">
-                      <strong>Brand:</strong> {doc.brand}
-                    </p>
-                    <p className="text-gray-700">
-                      <strong>Item:</strong> {doc.item}
-                    </p>
-                    <p className="text-gray-700">
-                      <strong>GTIN:</strong> {doc.gtin}
-                    </p>
-                    <p className="text-gray-700">
-                      <strong>Dimensions:</strong> {doc.dimensions}
-                    </p>
-                    <p className="text-gray-700">
-                      <strong>Lot:</strong> {doc.lot}
-                    </p>
-                    <p className="text-gray-700">
-                      <strong>Reference:</strong> {doc.ref}
-                    </p>
-                    <p className="text-gray-700">
-                      <strong>Quantity:</strong> {doc.quantity}
-                    </p>
+                  <h4 className="mb-4 font-medium text-bsc-blue">{`Sticker ${index + 1}`}</h4>
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                    <div className="space-y-3">
+                      <p className="text-gray-700">
+                        <strong>Brand:</strong> {doc.brand}
+                      </p>
+                      <p className="text-gray-700">
+                        <strong>GTIN:</strong> {doc.gtin}
+                      </p>
+                      <p className="text-gray-700">
+                        <strong>Lot:</strong> {doc.lot}
+                      </p>
+                      <p className="text-gray-700">
+                        <strong>Quantity:</strong> {doc.quantity}
+                      </p>
+                    </div>
+                    <div className="space-y-3">
+                      <p className="text-gray-700">
+                        <strong>Item:</strong> {doc.item}
+                      </p>
+                      <p className="text-gray-700">
+                        <strong>Dimensions:</strong> {doc.dimensions}
+                      </p>
+                      <p className="text-gray-700">
+                        <strong>Reference:</strong> {doc.ref}
+                      </p>
+                    </div>
                   </div>
                 </div>
               ))}

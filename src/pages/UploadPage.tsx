@@ -494,7 +494,6 @@ const UploadPage = () => {
                 <span className="text-sm font-medium text-gray-700">{uploadProgress}%</span>
               </div>
               <Progress value={uploadProgress} className="h-2" />
-              <p className="text-xs text-gray-500 text-center">Connected to socket server, waiting for progress updates...</p>
             </div>
           )}
           
