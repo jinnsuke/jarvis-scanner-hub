@@ -9,6 +9,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Gallery from "./pages/Gallery";
 import UploadPage from "./pages/UploadPage";
 import DocumentDetail from "./pages/DocumentDetail";
+import ExportData from "./pages/ExportData";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
@@ -58,6 +59,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <DocumentDetail />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/export"
+                element={
+                  <ProtectedRoute>
+                    <ExportData />
                   </ProtectedRoute>
                 }
               />

@@ -1,4 +1,3 @@
-
 import Navbar from "@/components/Navbar";
 import { useDocuments } from "@/context/DocumentContext";
 import MonthGroup from "@/components/MonthGroup";
@@ -6,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Download } from "lucide-react";
 
 const Gallery = () => {
   const { groupedDocuments, deleteDocument, searchDocuments } = useDocuments();
@@ -34,7 +34,16 @@ const Gallery = () => {
 
   return (
     <div className="min-h-screen bg-bsc-lightgray">
-      <Navbar onSearch={handleSearch} showSearch={true} />
+      <Navbar onSearch={handleSearch} showSearch={true}>
+        <Button
+          onClick={() => navigate("/export")}
+          variant="outline"
+          className="flex items-center"
+        >
+          <Download className="w-4 h-4 mr-2" />
+          Export Data
+        </Button>
+      </Navbar>
       
       <main className="container p-4 mx-auto">
         {groupedDocuments.length > 0 ? (
