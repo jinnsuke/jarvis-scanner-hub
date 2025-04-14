@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon, ArrowLeft } from "lucide-react";
+import { CalendarIcon, ArrowLeft, Upload, Grid } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
 
@@ -41,6 +41,14 @@ const ExportData = () => {
 
     try {
       setIsExporting(true);
+
+      // Format dates to ensure consistent timezone handling
+      const formattedStartDate = new Date(startDate);
+      formattedStartDate.setHours(0, 0, 0, 0);
+      
+      const formattedEndDate = new Date(endDate);
+      formattedEndDate.setHours(23, 59, 59, 999);
+
       const response = await fetch("http://localhost:3000/api/export", {
         method: "POST",
         headers: {
@@ -48,37 +56,44 @@ const ExportData = () => {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          startDate: startDate.toISOString(),
-          endDate: endDate.toISOString(),
+          startDate: formattedStartDate.toISOString(),
+          endDate: formattedEndDate.toISOString(),
         }),
       });
 
       if (!response.ok) {
-        throw new Error("Export failed");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Export failed");
       }
 
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `extracted_data_${format(startDate, "yyyyMMdd")}_${format(
-        endDate,
-        "yyyyMMdd"
-      )}.xlsx`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      // Check if the response is a blob (successful export)
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `extracted_data_${format(startDate, "yyyyMMdd")}_${format(
+          endDate,
+          "yyyyMMdd"
+        )}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
 
-      toast({
-        title: "Export successful",
-        description: "Your data has been exported successfully.",
-      });
+        toast({
+          title: "Export successful",
+          description: "Your data has been exported successfully.",
+        });
+      } else {
+        throw new Error("Invalid response format");
+      }
     } catch (error) {
       console.error("Export error:", error);
       toast({
         title: "Export failed",
-        description: "There was an error exporting your data. Please try again.",
+        description: error instanceof Error ? error.message : "There was an error exporting your data. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -88,7 +103,24 @@ const ExportData = () => {
 
   return (
     <div className="min-h-screen bg-bsc-lightgray">
-      <Navbar showSearch={false} />
+      <Navbar showSearch={false}>
+        <div className="flex gap-2">
+          <Button
+            onClick={() => navigate("/upload")}
+            className="px-3 py-1 text-sm bg-bsc-blue hover:bg-blue-700 sm:px-4 sm:py-2 sm:text-base"
+          >
+            <Upload className="w-4 h-4 mr-2" />
+            Upload
+          </Button>
+          <Button
+            onClick={() => navigate("/gallery")}
+            className="px-3 py-1 text-sm text-white bg-bsc-blue hover:bg-blue-700 sm:px-4 sm:py-2 sm:text-base"
+          >
+            <Grid className="w-4 h-4 mr-2" />
+            View Gallery
+          </Button>
+        </div>
+      </Navbar>
       
       <main className="container px-4 py-6 mx-auto sm:py-10">
         <div className="max-w-2xl p-6 mx-auto mt-4 bg-white rounded-lg shadow-md">
@@ -165,7 +197,10 @@ const ExportData = () => {
                         setEndDate(date);
                         setEndCalendarOpen(false);
                       }}
-                      disabled={(date) => date > new Date()}
+                      disabled={(date) => 
+                        date > new Date() || 
+                        (startDate ? date < startDate : false)
+                      }
                       initialFocus
                     />
                   </PopoverContent>

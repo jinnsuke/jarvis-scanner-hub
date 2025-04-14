@@ -67,7 +67,7 @@ const LoginPage = () => {
                 className="w-full border-gray-300 focus:border-bsc-blue focus:ring-bsc-blue"
               />
             </div>
-            <Button type="submit" className="w-full bg-bsc-blue hover:bg-blue-700">
+            <Button type="submit" className="w-full">
               Login
             </Button>
             <p className="text-center text-sm text-gray-600 mt-4">

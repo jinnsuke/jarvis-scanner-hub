@@ -1,11 +1,17 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Edit2, Save, X } from "lucide-react";
+import { ArrowLeft, Edit2, Save, X, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { useDocuments } from "@/context/DocumentContext";
 import { Input } from "@/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface DocumentData {
   gtin: string;
@@ -189,11 +195,11 @@ const DocumentDetail = () => {
       <div className="flex flex-col items-center justify-center min-h-screen bg-bsc-lightgray">
         <div className="p-4 text-lg text-red-600">{error}</div>
         <Button
-          variant="outline"
+          variant="secondary"
           onClick={handleBack}
           className="mt-4"
         >
-          Return to Gallery
+          Back to Gallery
         </Button>
       </div>
     );
@@ -204,11 +210,11 @@ const DocumentDetail = () => {
       <div className="flex flex-col items-center justify-center min-h-screen bg-bsc-lightgray">
         <div className="p-4 text-lg">Document not found!</div>
         <Button
-          variant="outline"
+          variant="secondary"
           onClick={handleBack}
           className="mt-4"
         >
-          Return to Gallery
+          Back to Gallery
         </Button>
       </div>
     );
@@ -236,7 +242,7 @@ const DocumentDetail = () => {
       </header>
 
       <main className="container p-4 mx-auto">
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2 md:h-[calc(100vh-8rem)]">
           {/* Original Image */}
           <div className="p-4 bg-white rounded-lg shadow">
             <h3 className="mb-4 text-lg font-semibold">Original Document</h3>
@@ -245,7 +251,7 @@ const DocumentDetail = () => {
                 <img
                   src={imageUrl}
                   alt="Original document"
-                  className="max-w-full max-h-[600px] object-contain"
+                  className="max-w-full max-h-[calc(100vh-16rem)] object-contain"
                   onError={() => {
                     console.error("Error loading image");
                     setImageUrl(null);
@@ -260,10 +266,24 @@ const DocumentDetail = () => {
           </div>
 
           {/* Extracted Stickers */}
-        <div className="p-4 bg-white rounded-lg shadow">
-          <h3 className="mb-4 text-lg font-semibold">Extracted Stickers</h3>
-          <div className="space-y-4">
-            {document.map((doc, index) => (
+          <div className="p-4 bg-white rounded-lg shadow md:overflow-hidden md:flex md:flex-col">
+            <div className="flex items-center mb-4">
+              <h3 className="text-lg font-semibold">Extracted Stickers</h3>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 ml-2">
+                      <Info className="h-4 w-4 text-gray-500" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>The stickers are typically extracted top to bottom.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <div className="space-y-4 md:flex-1 md:overflow-y-auto">
+              {document.map((doc, index) => (
                 <div key={doc.gtin} className="p-4 border rounded-lg">
                   <h4 className="mb-4 font-medium text-bsc-blue">{`Sticker ${index + 1}`}</h4>
                   <div className="grid grid-cols-2 gap-x-6 gap-y-3">

@@ -27,13 +27,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const savedToken = localStorage.getItem('token');
     if (savedToken) {
       setToken(savedToken);
-      fetchUser(savedToken);
+      fetchUser(savedToken).catch(() => {
+        setIsLoading(false);
+      });
     } else {
       setIsLoading(false);
     }
   }, []);
 
   const fetchUser = async (authToken: string) => {
+    if (!authToken) {
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch('http://localhost:3000/api/auth/me', {
         headers: {
@@ -44,12 +51,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (response.ok) {
         const userData = await response.json();
         setUser(userData);
-      } else {
+      } else if (response.status === 401) {
+        // If unauthorized, clear the invalid token
+        console.log('Auth token invalid or expired, logging out');
         logout();
+      } else {
+        // For other errors, don't logout - might be temporary server issues
+        console.error('Error fetching user data:', await response.text());
       }
     } catch (error) {
-      console.error('Error fetching user:', error);
-      logout();
+      // For network errors, don't logout - server might be starting up
+      console.error('Network error fetching user:', error);
     } finally {
       setIsLoading(false);
     }
