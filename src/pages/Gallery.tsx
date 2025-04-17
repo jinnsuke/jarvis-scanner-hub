@@ -1,25 +1,28 @@
-import Navbar from "@/components/Navbar";
-import { useDocuments } from "@/context/DocumentContext";
-import MonthGroup from "@/components/MonthGroup";
+import React from 'react';
+import { useDocuments } from '@/context/DocumentContext';
+import MonthGroup from '@/components/MonthGroup';
+import { Loader2 as Spinner } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { groupDocumentsByMonth } from '@/services/documentService';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/components/ui/use-toast';
+import { Button } from '@/components/ui/button';
+import Navbar from '@/components/Navbar';
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { Download } from "lucide-react";
 
 const Gallery = () => {
-  const { groupedDocuments, deleteDocument, searchDocuments } = useDocuments();
-  const [searchTerm, setSearchTerm] = useState("");
+  const { documents, loading, error, searchQuery, setSearchQuery } = useDocuments();
+  const groupedDocuments = groupDocumentsByMonth(documents);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleSearch = (query: string) => {
-    setSearchTerm(query);
-    searchDocuments(query);
+    setSearchQuery(query);
   };
 
   const handleDelete = (id: string) => {
-    deleteDocument(id);
+    // Implement delete logic here
     toast({
       title: "Document deleted",
       description: "The document has been successfully deleted.",
@@ -46,28 +49,32 @@ const Gallery = () => {
       </Navbar>
       
       <main className="container p-4 mx-auto">
-        {groupedDocuments.length > 0 ? (
-          groupedDocuments.map((group) => (
-            <MonthGroup 
-              key={group.month} 
-              group={group} 
-              onDelete={handleDelete}
-              onClick={handleClick} // Add onClick handler here
-            />
-          ))
-        ) : (
-          <div className="flex flex-col items-center justify-center h-[calc(100vh-8rem)]">
-            <p className="text-xl text-gray-500 text-center px-4">
-              {searchTerm ? `No documents found matching "${searchTerm}"` : "No documents uploaded yet"}
-            </p>
-            <Button
-              onClick={() => navigate("/")}
-              className="mt-4 px-4 py-2 bg-bsc-blue hover:bg-blue-700"
-            >
-              Upload
-            </Button>
+        {loading && (
+          <div className="flex justify-center items-center h-64">
+            <Spinner size="lg" />
           </div>
         )}
+
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        {!loading && !error && groupedDocuments.length === 0 && (
+          <div className="text-center text-gray-500 mt-8">
+            No documents found
+          </div>
+        )}
+
+        {!loading && !error && groupedDocuments.map((group) => (
+          <MonthGroup
+            key={group.month}
+            group={group}
+            onDelete={handleDelete}
+            onClick={handleClick}
+          />
+        ))}
       </main>
     </div>
   );

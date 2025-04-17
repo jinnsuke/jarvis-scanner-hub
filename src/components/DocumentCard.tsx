@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Trash2 } from "lucide-react";
@@ -18,7 +17,7 @@ import {
 interface DocumentCardProps {
   document: Document;
   onDelete?: (id: string) => void;
-  onClick?: (name: string) => void;  // Keep the onClick to handle navigation
+  onClick?: (name: string) => void;
 }
 
 const DocumentCard = ({ document, onDelete, onClick }: DocumentCardProps) => {
@@ -27,13 +26,13 @@ const DocumentCard = ({ document, onDelete, onClick }: DocumentCardProps) => {
 
   const handleCardClick = () => {
     if (onClick) {
-      onClick(document.name); // Pass document name to the onClick handler
+      onClick(document.image_name);
     }
   };
 
   const handleDelete = () => {
     if (onDelete) {
-      onDelete(document.id);
+      onDelete(document.image_name);
     }
     setShowDeleteDialog(false);
   };
@@ -42,19 +41,19 @@ const DocumentCard = ({ document, onDelete, onClick }: DocumentCardProps) => {
     <>
       <Card 
         className="overflow-hidden cursor-pointer group"
-        onClick={handleCardClick}  // Trigger onClick when the card is clicked
+        onClick={handleCardClick}
       >
         <div className="relative">
           <img 
-            src={document.imageSrc} 
-            alt={document.name}
+            src={document.s3_image_url} 
+            alt={document.image_name}
             className="object-cover w-full h-40 transition-transform group-hover:scale-105"
           />
           {onDelete && (
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
               <button
                 onClick={(e) => {
-                  e.stopPropagation(); // Prevent triggering the card click event
+                  e.stopPropagation();
                   setShowDeleteDialog(true);
                 }}
                 className="p-1 bg-white rounded-full shadow-md"
@@ -66,7 +65,7 @@ const DocumentCard = ({ document, onDelete, onClick }: DocumentCardProps) => {
           )}
         </div>
         <div className="p-3">
-          <h3 className="text-sm font-medium truncate">{document.name}</h3>
+          <h3 className="text-sm font-medium truncate">{document.image_name}</h3>
         </div>
       </Card>
 
@@ -75,7 +74,7 @@ const DocumentCard = ({ document, onDelete, onClick }: DocumentCardProps) => {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              Proceed to delete "{document.name}"? This action cannot be undone.
+              Proceed to delete "{document.image_name}"? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -50,7 +50,7 @@ const HOSPITALS = [
 
 const UploadPage = () => {
   const navigate = useNavigate();
-  const { addNewDocument } = useDocuments();
+  const { refreshDocuments } = useDocuments();
   const { toast } = useToast();
   const { user, logout, token } = useAuth();
   
@@ -239,6 +239,16 @@ const UploadPage = () => {
   };
   
   const handleUpload = async () => {
+    if (!user || !token) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to upload documents.",
+        variant: "destructive",
+      });
+      navigate('/login');
+      return;
+    }
+
     if (!selectedFile || !documentName || !procedureDate || !hospital || !doctor || !procedure || !billingNo) {
       toast({
         title: "Missing information",
@@ -289,7 +299,7 @@ const UploadPage = () => {
       }
       
       const data = await response.json();
-      addNewDocument(documentName, previewUrl || "");
+      await refreshDocuments();
       
       toast({
         title: "Document uploaded",

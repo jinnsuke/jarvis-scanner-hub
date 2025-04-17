@@ -22,6 +22,7 @@ interface DocumentData {
   ref: string;
   quantity: string;
   file_key?: string;
+  s3_image_url?: string;
 }
 
 interface EditingState {
@@ -49,38 +50,28 @@ const DocumentDetail = () => {
 
   useEffect(() => {
     let isMounted = true;
-
-      const fetchDocument = async () => {
-      if (!name) return;
-
+    
+    const fetchDocument = async () => {
       try {
         setLoading(true);
         setError(null);
+        
+        const response = await fetch(
+          `http://localhost:3000/api/document/${encodeURIComponent(name)}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-        // Find the document in the context first
-        const decodedName = decodeURIComponent(name);
-        const existingDoc = documents.find(doc => doc.name === decodedName);
-        if (existingDoc?.imageSrc) {
-          setImageUrl(existingDoc.imageSrc);
-        }
-
-        const response = await fetch(`http://localhost:3000/api/document/${name}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-          credentials: 'include'
-        });
-
-        if (!isMounted) return;
-
-          if (response.ok) {
-            const data = await response.json();
-            if (data && data.length > 0) {
-              setDocument(data);
-            // If we have a file_key from S3, construct the S3 URL
-            if (data[0].file_key && !imageUrl) {
-              const s3Url = `https://${process.env.REACT_APP_AWS_BUCKET_NAME}.s3.${process.env.REACT_APP_AWS_REGION}.amazonaws.com/${data[0].file_key}`;
-              setImageUrl(s3Url);
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.length > 0) {
+            setDocument(data);
+            // Use the s3_image_url from the API response
+            if (data[0].s3_image_url) {
+              setImageUrl(data[0].s3_image_url);
             }
           } else {
             setError("Document not found");
@@ -90,25 +81,25 @@ const DocumentDetail = () => {
           navigate("/login");
         } else {
           setError("Failed to load document");
-          }
-        } catch (error) {
+        }
+      } catch (error) {
         if (isMounted) {
           console.error("Error fetching document:", error);
           setError("An unexpected error occurred");
         }
-        } finally {
+      } finally {
         if (isMounted) {
           setLoading(false);
         }
-        }
-      };
+      }
+    };
 
-      fetchDocument();
+    fetchDocument();
 
     return () => {
       isMounted = false;
     };
-  }, [name, navigate, token, documents]); // Removed imageUrl from dependencies
+  }, [name, navigate, token]);
 
   const handleBack = () => {
     navigate("/gallery");

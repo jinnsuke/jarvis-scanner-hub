@@ -6,7 +6,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, isLoading } = useAuth();
+  const { user, token, isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -16,7 +16,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  if (!user) {
+  if (!user || !token) {
+    console.log('No authenticated user or token found, redirecting to login');
     return <Navigate to="/login" replace />;
   }
 

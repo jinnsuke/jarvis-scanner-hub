@@ -1,77 +1,108 @@
-
 import { Document, MonthGroup } from "@/types/document";
-import { v4 as uuidv4 } from "uuid";
-
-// Placeholder image
-const placeholderImage = "https://placehold.co/600x400/e6f2ff/0055B8?text=BSC+Document";
-
-// Empty array instead of sample documents
-const sampleDocuments: Document[] = [];
 
 // Function to group documents by month
-export const groupDocumentsByMonth = (documents: Document[]): MonthGroup[] => {
-  const groupedDocs: { [key: string]: Document[] } = {};
+export const groupDocumentsByMonth = (documents: Document[]) => {
+  const monthGroups: { [key: string]: Document[] } = {};
   
-  documents.forEach(doc => {
-    const date = new Date(doc.uploadDate);
-    const monthYear = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+  // Sort documents by procedure_date in descending order
+  const sortedDocuments = [...documents].sort((a, b) => {
+    if (!a.procedure_date) return 1;
+    if (!b.procedure_date) return -1;
+    return new Date(b.procedure_date).getTime() - new Date(a.procedure_date).getTime();
+  });
+
+  sortedDocuments.forEach((document) => {
+    let monthKey = "Invalid Date";
     
-    if (!groupedDocs[monthYear]) {
-      groupedDocs[monthYear] = [];
+    if (document.procedure_date) {
+      const date = new Date(document.procedure_date);
+      if (!isNaN(date.getTime())) {
+        monthKey = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+      }
     }
     
-    groupedDocs[monthYear].push(doc);
+    if (!monthGroups[monthKey]) {
+      monthGroups[monthKey] = [];
+    }
+    monthGroups[monthKey].push(document);
   });
-  
-  return Object.keys(groupedDocs).map(monthYear => ({
-    month: monthYear,
-    documents: groupedDocs[monthYear]
-  }));
+
+  // Convert the groups object to an array and sort by date
+  return Object.entries(monthGroups)
+    .map(([month, docs]) => ({
+      month,
+      documents: docs
+    }))
+    .sort((a, b) => {
+      if (a.month === "Invalid Date") return 1;
+      if (b.month === "Invalid Date") return -1;
+      
+      const [aMonth, aYear] = a.month.split(" ");
+      const [bMonth, bYear] = b.month.split(" ");
+      
+      if (aYear !== bYear) {
+        return parseInt(bYear) - parseInt(aYear);
+      }
+      
+      const months = ["January", "February", "March", "April", "May", "June",
+                     "July", "August", "September", "October", "November", "December"];
+      return months.indexOf(bMonth) - months.indexOf(aMonth);
+    });
 };
 
-// Get all documents
-export const getAllDocuments = (): Document[] => {
-  return [...sampleDocuments]; // Return a copy to prevent mutation
-};
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
-// Get document by ID
-export const getDocumentById = (id: string): Document | undefined => {
-  return sampleDocuments.find(doc => doc.id === id);
-};
+export async function fetchDocuments(token: string): Promise<Document[]> {
+  const response = await fetch(`${API_BASE_URL}/gallery`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
 
-// Add a new document
-export const addDocument = (name: string, imageSrc: string): Document => {
-  const newDocument: Document = {
-    id: uuidv4(),
-    name,
-    uploadDate: new Date(), // Use current date instead of hardcoded date
-    imageSrc,
-    extractedText: "Sample extracted text from the document. This would contain the actual text extracted from the uploaded image using OCR technology."
-  };
-  
-  sampleDocuments.push(newDocument);
-  return newDocument;
-};
-
-// Delete a document
-export const deleteDocument = (id: string): Document[] => {
-  const index = sampleDocuments.findIndex(doc => doc.id === id);
-  
-  if (index !== -1) {
-    sampleDocuments.splice(index, 1);
+  if (!response.ok) {
+    throw new Error('Failed to fetch documents');
   }
-  
-  return [...sampleDocuments]; // Return a copy to prevent mutation
-};
 
-// Search documents by name - fixed to be properly case-insensitive and match exact substrings
-export const searchDocuments = (query: string): Document[] => {
-  if (!query.trim()) {
-    return [...sampleDocuments];
+  return response.json();
+}
+
+export async function searchDocuments(query: string, token: string): Promise<Document[]> {
+  const response = await fetch(`${API_BASE_URL}/documents/search?q=${encodeURIComponent(query)}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to search documents');
   }
-  
-  const lowercaseQuery = query.toLowerCase().trim();
-  return sampleDocuments.filter(doc => 
-    doc.name.toLowerCase().includes(lowercaseQuery)
-  );
-};
+
+  return response.json();
+}
+
+export async function deleteDocument(documentName: string, token: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/documents/${encodeURIComponent(documentName)}`, {
+    method: "DELETE",
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to delete document');
+  }
+}
+
+export async function getDocument(documentName: string, token: string): Promise<Document> {
+  const response = await fetch(`${API_BASE_URL}/documents/${encodeURIComponent(documentName)}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch document');
+  }
+
+  return response.json();
+}
