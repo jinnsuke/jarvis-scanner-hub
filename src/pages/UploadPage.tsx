@@ -70,6 +70,7 @@ const UploadPage = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [socketInstance, setSocketInstance] = useState<Socket | null>(null);
+  const progressRef = useRef(0);
   
   useEffect(() => {
     if (procedureDate && hospital && doctor && procedure && billingNo) {
@@ -98,19 +99,26 @@ const UploadPage = () => {
     });
     
     socket.on("upload-progress", (data: { progress: number }) => {
-      setUploadProgress(data.progress);
+      if (data.progress > progressRef.current) {
+        progressRef.current = data.progress;
+        setUploadProgress(data.progress);
+      }
     });
     
     socket.on("upload-complete", () => {
+      progressRef.current = 100;
       setUploadProgress(100);
       setTimeout(() => {
         setIsUploading(false);
         setUploadProgress(0);
+        progressRef.current = 0;
       }, 1000);
     });
     
     socket.on("upload-error", (error: string) => {
       setIsUploading(false);
+      progressRef.current = 0;
+      setUploadProgress(0);
       toast({
         title: "Upload failed",
         description: error,
@@ -244,6 +252,9 @@ const UploadPage = () => {
       const socket = initSocket();
       setSocketInstance(socket);
     }
+    
+    progressRef.current = 0;
+    setUploadProgress(0);
     
     const formData = new FormData();
     formData.append("file", selectedFile);
