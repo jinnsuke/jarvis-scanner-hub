@@ -85,7 +85,6 @@ const UploadPage = () => {
         .replace(/^_|_$/g, '');
       
       setDocumentName(newDocumentName);
-      console.log('Generated document name:', newDocumentName);
     } else {
       setDocumentName("");
     }
